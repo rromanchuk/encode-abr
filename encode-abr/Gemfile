@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'amazing_print'
+gem 'aws-sdk-s3'
+gem 'aws-sdk-sns'
+
+ruby '~> 2.7.0'
