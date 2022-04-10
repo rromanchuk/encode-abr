@@ -5,6 +5,21 @@ Description: >
 
   Sample solution for replacing AWS MediaConvert workflow using ffmpeg
 
+# https://stackoverflow.com/questions/59060808/aws-sam-template-setting-environment-specific-variables
+Parameters:
+  Env:
+    Type: String
+
+  S3Bucket:
+    Type: String
+
+  Architecture:
+    Type: String
+    Default: arm64
+    AllowedValues:
+      - arm64
+      - x86_64
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -12,7 +27,7 @@ Globals:
     MemorySize: 8000
     Environment:
       Variables:
-        DEST_BUCKET: <my-videos>
+        DEST_BUCKET: !Sub "${S3Bucket}"
 
 Resources:
   EncodeFIFOQueue:
@@ -25,7 +40,8 @@ Resources:
     Properties:
       PackageType: Image
       Architectures:
-        - x86_64
+        # - x86_64
+        - arm64
       Policies:
         - Statement:
           - Sid: S3GetAll
@@ -37,7 +53,7 @@ Resources:
             Effect: Allow
             Action:
               - s3:PutObject
-            Resource: 'arn:aws:s3:::<my-videos>/vod/*'
+            Resource: !Sub "arn:aws:s3:::${S3Bucket}/vod/*"
           - Sid: SNSPublish
             Effect: Allow
             Action:
@@ -45,10 +61,10 @@ Resources:
             Resource: '*'
       VpcConfig:
         SecurityGroupIds:
-          - sg-04b40f84b40e1224e
+          - sg-<your-sg>
         SubnetIds:
-          - subnet-089fbd746104d14fa
-          - subnet-069b6639f7936bb33
+          - subnet-<your-subnet>
+          - subnet-<your-subnet2>
       Events:
         EncodeJob:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
