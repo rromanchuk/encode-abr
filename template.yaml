@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  encoder-abr
+
+  Sample solution for replacing AWS MediaConvert workflow using ffmpeg
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 400
+    MemorySize: 8000
+    Environment:
+      Variables:
+        DEST_BUCKET: <my-videos>
+
+Resources:
+  EncodeFIFOQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      VisibilityTimeout: 800
+  EcodeAbrFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+          - Sid: S3GetAll
+            Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: '*'
+          - Sid: S3PutVideos
+            Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: 'arn:aws:s3:::<my-videos>/vod/*'
+          - Sid: SNSPublish
+            Effect: Allow
+            Action:
+              - SNS:Publish
+            Resource: '*'
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-04b40f84b40e1224e
+        SubnetIds:
+          - subnet-089fbd746104d14fa
+          - subnet-069b6639f7936bb33
+      Events:
+        EncodeJob:
+          Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Queue: !GetAtt EncodeFIFOQueue.Arn
+            BatchSize: 5
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+    Metadata:
+      DockerTag: ruby2.7-v1
+      DockerContext: ./encode-abr
+      Dockerfile: Dockerfile
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  EcodeAbrFunctionFunction:
+    Description: "EcodeAbrFunction ARN"
+    Value: !GetAtt EcodeAbrFunction.Arn
+  EcodeAbrFunctionIamRole:
+    Description: "Implicit IAM Role created for encoder function"
+    Value: !GetAtt EcodeAbrFunction.Arn
