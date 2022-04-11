@@ -1,6 +1,6 @@
-FROM public.ecr.aws/lambda/ruby:2.7
+FROM public.ecr.aws/lambda/ruby:latest-arm64
 
-COPY ../encode-abr/app.rb ./encode-abr/Gemfile ./encode-abr/encode.sh ./
+COPY app.rb Gemfile encode.sh ./
 COPY arm64/ffmpeg /opt/bin/
 COPY arm64/ffprobe /opt/bin/
 

@@ -1,4 +1,4 @@
 encode-abr/amd64/ffmpeg filter=lfs diff=lfs merge=lfs -text
 encode-abr/amd64/ffprobe filter=lfs diff=lfs merge=lfs -text
-encode-abr-arm64/arm64/ffmpeg filter=lfs diff=lfs merge=lfs -text
-encode-abr-arm64/arm64/ffprobe filter=lfs diff=lfs merge=lfs -text
+encode-abr/arm64/ffmpeg filter=lfs diff=lfs merge=lfs -text
+encode-abr/arm64/ffprobe filter=lfs diff=lfs merge=lfs -text

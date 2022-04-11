@@ -17,6 +17,10 @@ Run functions locally and invoke them with the `sam local invoke` command.
 encoder-abr$ sam local invoke EcodeAbrFunction --event events/sqs.json
 ```
 
+```bash
+encoder-abr$ sam local invoke EcodeAbrARM64Function --event events/sqs.json
+```
+
 ## Fetch, tail, and filter Lambda function logs
 
 
